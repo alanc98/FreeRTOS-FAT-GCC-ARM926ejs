@@ -186,7 +186,7 @@ void startupTask(void* pvParameters)
     printf("Creating RAM Disk\n");
     CreateRamDisk();
 
-    #if 0
+    #if 1
        /*
        ** Test the RAM disk
        */
