@@ -46,8 +46,6 @@ LIBC = ${shell ${CC} ${CFLAGS} --print-file-name=libc.a}
 LIBGCC = ${shell ${CC} ${CFLAGS} --print-libgcc-file-name}
 
 # Intermediate directory for all *.o and other files:
-OBJDIR = ./
-
 SRCDIR = ..
 
 # FreeRTOS source base directory
@@ -105,8 +103,8 @@ APP_OBJS = app_init.o
 # nostdlib.o must be commented out if standard lib is going to be linked!
 # APP_OBJS += nostdlib.o
 
-# All object files specified above are prefixed the intermediate directory
-OBJS = $(addprefix $(OBJDIR), $(STARTUP_ASM_OBJ) $(STARTUP_OBJS) $(FREERTOS_OBJS) $(FREERTOS_MEMMANG_OBJS) $(FREERTOS_PORT_OBJS) $(FREERTOS_FAT_OBJS) $(DRIVERS_OBJS) $(APP_OBJS) tarfile.o)
+# All object files
+OBJS = $(STARTUP_ASM_OBJ) $(STARTUP_OBJS) $(FREERTOS_OBJS) $(FREERTOS_MEMMANG_OBJS) $(FREERTOS_PORT_OBJS) $(FREERTOS_FAT_OBJS) $(DRIVERS_OBJS) $(APP_OBJS) tarfile.o
 
 # Definition of the linker script and final targets
 LINKER_SCRIPT = $(addprefix $(STARTUP_SRC), qemu.ld)
@@ -139,14 +137,11 @@ all : $(TARGET)
 
 rebuild : clean all
 
-$(TARGET) : $(OBJDIR) $(ELF_IMAGE)
-	$(OBJCOPY) -O binary $(word 2,$^) $@
-
-$(OBJDIR) :
-	mkdir -p $@
+$(TARGET) : $(ELF_IMAGE)
+	$(OBJCOPY) -O binary $(ELF_IMAGE) $@
 
 $(ELF_IMAGE) : $(OBJS) $(LINKER_SCRIPT)
-	$(LD) -L $(OBJDIR) -T $(LINKER_SCRIPT) $(OBJS) $(OFLAG) $@  $(LIBC) $(LIBM) $(LIBGCC) 
+	$(LD) -T $(LINKER_SCRIPT) $(OBJS) $(OFLAG) $@  $(LIBC) $(LIBM) $(LIBGCC) 
 #	$(LD) -L $(OBJDIR) -T $(LINKER_SCRIPT) $(OBJS) $(OFLAG) $@  $(LIBDIR)/libc.a $(LIBDIR)/libm.a $(GCCLIBDIR)/libgcc.a 
 #	$(LD) -L $(OBJDIR) -T $(LINKER_SCRIPT) $(OBJS) $(OFLAG) $@  $(LIBDIR)/libc_nano.a 
 #	$(LD) -nostdlib -L $(OBJDIR) -T $(LINKER_SCRIPT) $(OBJS) $(OFLAG) $@ 
@@ -160,148 +155,150 @@ _debug_flags :
 
 # Startup code, implemented in assembler
 
-$(OBJDIR)startup.o : $(STARTUP_SRC)startup.s
+startup.o : $(STARTUP_SRC)startup.s
 	$(AS) $(CPUFLAG) $< $(OFLAG) $@
 
 # FreeRTOS core
 
-$(OBJDIR)queue.o : $(FREERTOS_SRC)queue.c
+queue.o : $(FREERTOS_SRC)queue.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)list.o : $(FREERTOS_SRC)list.c
+list.o : $(FREERTOS_SRC)list.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)tasks.o : $(FREERTOS_SRC)tasks.c
+tasks.o : $(FREERTOS_SRC)tasks.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)timers.o : $(FREERTOS_SRC)timers.c
+timers.o : $(FREERTOS_SRC)timers.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)croutine.o : $(FREERTOS_SRC)croutine.c
+croutine.o : $(FREERTOS_SRC)croutine.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)event_groups.o : $(FREERTOS_SRC)event_groups.c
+event_groups.o : $(FREERTOS_SRC)event_groups.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
 # HW specific part, in FreeRTOS/Source/portable/$(PORT_COMP_TARGET)
 
-$(OBJDIR)port.o : $(FREERTOS_PORT_SRC)port.c
+port.o : $(FREERTOS_PORT_SRC)port.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)portISR.o : $(FREERTOS_PORT_SRC)portISR.c
+portISR.o : $(FREERTOS_PORT_SRC)portISR.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
 # Rules for all MemMang implementations are provided
 # Only one of these object files must be linked to the final target
 
-$(OBJDIR)heap_1.o : $(FREERTOS_MEMMANG_SRC)heap_1.c
+heap_1.o : $(FREERTOS_MEMMANG_SRC)heap_1.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)heap_2.o : $(FREERTOS_MEMMANG_SRC)heap_2.c
+heap_2.o : $(FREERTOS_MEMMANG_SRC)heap_2.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)heap_3.o : $(FREERTOS_MEMMANG_SRC)heap_3.c
+heap_3.o : $(FREERTOS_MEMMANG_SRC)heap_3.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)heap_4.o : $(FREERTOS_MEMMANG_SRC)heap_4.c
+heap_4.o : $(FREERTOS_MEMMANG_SRC)heap_4.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)heap_5.o : $(FREERTOS_MEMMANG_SRC)heap_5.c
+heap_5.o : $(FREERTOS_MEMMANG_SRC)heap_5.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
 # FreeRTOS FAT 
-$(OBJDIR)ff_crc.o : $(FREERTOS_FAT_SRC)ff_crc.c
+ff_crc.o : $(FREERTOS_FAT_SRC)ff_crc.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-# $(OBJDIR)ff_dev_support.o : $(FREERTOS_FAT_SRC)ff_dev_support.c
+# ff_dev_support.o : $(FREERTOS_FAT_SRC)ff_dev_support.c
 #	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_dir.o : $(FREERTOS_FAT_SRC)ff_dir.c
+ff_dir.o : $(FREERTOS_FAT_SRC)ff_dir.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_error.o : $(FREERTOS_FAT_SRC)ff_error.c
+ff_error.o : $(FREERTOS_FAT_SRC)ff_error.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_fat.o : $(FREERTOS_FAT_SRC)ff_fat.c
+ff_fat.o : $(FREERTOS_FAT_SRC)ff_fat.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_file.o : $(FREERTOS_FAT_SRC)ff_file.c
+ff_file.o : $(FREERTOS_FAT_SRC)ff_file.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_format.o : $(FREERTOS_FAT_SRC)ff_format.c
+ff_format.o : $(FREERTOS_FAT_SRC)ff_format.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_ioman.o : $(FREERTOS_FAT_SRC)ff_ioman.c
+ff_ioman.o : $(FREERTOS_FAT_SRC)ff_ioman.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_locking.o : $(FREERTOS_FAT_SRC)ff_locking.c
+ff_locking.o : $(FREERTOS_FAT_SRC)ff_locking.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_memory.o : $(FREERTOS_FAT_SRC)ff_memory.c
+ff_memory.o : $(FREERTOS_FAT_SRC)ff_memory.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_stdio.o : $(FREERTOS_FAT_SRC)ff_stdio.c
+ff_stdio.o : $(FREERTOS_FAT_SRC)ff_stdio.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_string.o : $(FREERTOS_FAT_SRC)ff_string.c
+ff_string.o : $(FREERTOS_FAT_SRC)ff_string.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_sys.o : $(FREERTOS_FAT_SRC)ff_sys.c
+ff_sys.o : $(FREERTOS_FAT_SRC)ff_sys.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_time.o : $(FREERTOS_FAT_SRC)ff_time.c
+ff_time.o : $(FREERTOS_FAT_SRC)ff_time.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
 # Drivers
 
-$(OBJDIR)timer.o : $(DRIVERS_SRC)timer.c $(DEP_BSP)
+timer.o : $(DRIVERS_SRC)timer.c $(DEP_BSP)
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)interrupt.o : $(DRIVERS_SRC)interrupt.c $(DEP_BSP)
+interrupt.o : $(DRIVERS_SRC)interrupt.c $(DEP_BSP)
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)uart.o : $(DRIVERS_SRC)uart.c $(DEP_BSP)
+uart.o : $(DRIVERS_SRC)uart.c $(DEP_BSP)
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)ff_ramdisk.o : $(DRIVERS_SRC)ff_ramdisk.c $(DEP_BSP)
+ff_ramdisk.o : $(DRIVERS_SRC)ff_ramdisk.c $(DEP_BSP)
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAG_DRIVERS) $(INC_FLAGS) $< $(OFLAG) $@
 
 # Startup files
 
-$(OBJDIR)main.o : $(STARTUP_SRC)main.c
+main.o : $(STARTUP_SRC)main.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)init.o : $(STARTUP_SRC)init.c $(DEP_BSP)
+init.o : $(STARTUP_SRC)init.c $(DEP_BSP)
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)ramdisk.o : $(STARTUP_SRC)ramdisk.c $(DEP_BSP)
+ramdisk.o : $(STARTUP_SRC)ramdisk.c $(DEP_BSP)
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
 # App files
 
-$(OBJDIR)app_init.o : $(APP_SRC)app_init.c
+app_init.o : $(APP_SRC)app_init.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
 
 # Lib functions
-$(OBJDIR)print.o : $(LIB_SRC)print.c
+print.o : $(LIB_SRC)print.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)receive.o : $(LIB_SRC)receive.c $(DEP_BSP)
+receive.o : $(LIB_SRC)receive.c $(DEP_BSP)
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)nostdlib.o : $(LIB_SRC)nostdlib.c
+nostdlib.o : $(LIB_SRC)nostdlib.c
 	$(CC) $(CFLAG) $(CFLAGS) $< $(OFLAG) $@
 
-$(OBJDIR)syscalls.o : $(LIB_SRC)syscalls.c
+syscalls.o : $(LIB_SRC)syscalls.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
-$(OBJDIR)untar.o : $(LIB_SRC)untar.c
+untar.o : $(LIB_SRC)untar.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
+#
 # Tar file
-$(OBJDIR)tarfile.o ::
+# Need a way to tar the directory in DOS
+tarfile.o ::
 	cd ../rootfs; tar cf ../build/tarfile $(shell ls ../rootfs)
-	$(LD) -r --noinhibit-exec -o $(OBJDIR)tarfile.o -b binary tarfile
+	$(LD) -r --noinhibit-exec -o tarfile.o -b binary tarfile
 
 # Cleanup directives:
 
