@@ -295,9 +295,9 @@ untar.o : $(LIB_SRC)untar.c
 
 #
 # Tar file
-# Need a way to tar the directory in DOS
-tarfile.o ::
-	cd ../rootfs; tar cf ../build/tarfile $(shell ls ../rootfs)
+#
+tarfile.o::
+	tar cf tarfile rootfs
 	$(LD) -r --noinhibit-exec -o tarfile.o -b binary tarfile
 
 # Cleanup directives:
