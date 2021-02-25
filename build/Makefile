@@ -49,7 +49,7 @@ LIBGCC = ${shell ${CC} ${CFLAGS} --print-libgcc-file-name}
 SRCDIR = ..
 
 # FreeRTOS source base directory
-FREERTOS_SRC = $(SRCDIR)/FreeRTOS/Source/
+FREERTOS_SRC = $(SRCDIR)/FreeRTOS-LTS-Kernel/
 
 # Directory with memory management source files
 FREERTOS_MEMMANG_SRC = $(FREERTOS_SRC)portable/MemMang/

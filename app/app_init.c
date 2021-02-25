@@ -194,6 +194,9 @@ void startupTask(void* pvParameters)
        vCreateAndVerifyExampleFiles("/ram");
     #endif
 
+    printf("Get directory for /ram - before untar\n");
+    ListFATDir("/ram");
+
     /*
     ** Unpack tar file
     */
@@ -208,8 +211,10 @@ void startupTask(void* pvParameters)
 
     printf("Utar_FromMemory returned - status = %d\n",status); 
 
-    printf("Get directory for /ram\n");  
+    printf("Get directory for /ram after untar\n");
     ListFATDir("/ram");
+    printf("Get directory for /ram/rootfs/cf after untar\n");
+    ListFATDir("/ram/rootfs/cf");
 
     /* 
     ** For this demo, create two tasks: 
