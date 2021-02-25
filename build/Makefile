@@ -98,7 +98,8 @@ FREERTOS_FAT_OBJS += ff_locking.o ff_memory.o ff_stdio.o ff_string.o ff_sys.o ff
 STARTUP_ASM_OBJ = startup.o
 STARTUP_OBJS = init.o main.o print.o receive.o syscalls.o ramdisk.o untar.o
 DRIVERS_OBJS = timer.o interrupt.o uart.o ff_ramdisk.o
-APP_OBJS = app_init.o
+# APP_OBJS = app_init.o
+APP_OBJS = cfs_init.o
 
 # nostdlib.o must be commented out if standard lib is going to be linked!
 # APP_OBJS += nostdlib.o
@@ -276,6 +277,9 @@ ramdisk.o : $(STARTUP_SRC)ramdisk.c $(DEP_BSP)
 
 app_init.o : $(APP_SRC)app_init.c
 	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $< $(OFLAG) $@
+
+cfs_init.o : $(APP_SRC)cfs_init.c
+	$(CC) $(CFLAG) $(CFLAGS) $(INC_FLAGS) $(INC_FLAG_DRIVERS) $< $(OFLAG) $@
 
 # Lib functions
 print.o : $(LIB_SRC)print.c
